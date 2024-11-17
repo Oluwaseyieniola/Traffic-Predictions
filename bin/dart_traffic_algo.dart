@@ -14,7 +14,9 @@
            all determined through 
   */
 
+import 'dart:convert';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 
 class TrafficData {
   late String location;
@@ -24,152 +26,83 @@ class TrafficData {
   TrafficData(this.timestamp, this.trafficLevel, this.location);
 }
 
-void main() {
-  List<TrafficData> dummyData = [
-    TrafficData(DateTime(2023, 7, 1), 0.2,
-        "Victoria Island"), // traffic situation for the month of july
-    TrafficData(DateTime(2023, 7, 2), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 7, 3), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 7, 4), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 7, 5), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 7, 6), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 7, 7), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 7, 8), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 7, 9), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 7, 10), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 7, 11), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 7, 12), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 7, 13), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 7, 14), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 7, 15), 0.2, "Victoria Island"),
+class TrafficFetcher {
+  final String apiKey;
+  final String apiUrl;
 
-    TrafficData(DateTime(2023, 7, 1), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 7, 2), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 7, 3), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 7, 4), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 7, 5), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 7, 6), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 7, 7), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 7, 8), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 7, 9), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 7, 10), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 7, 11), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 7, 12), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 7, 13), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 7, 14), 0.7, 'Ikeja'),
-    TrafficData(DateTime(2023, 7, 15), 0.7, 'Ikeja'),
+  TrafficFetcher(this.apiKey, this.apiUrl);
 
-    TrafficData(DateTime(2023, 7, 1), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 7, 2), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 7, 3), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 7, 4), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 7, 5), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 7, 6), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 7, 7), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 7, 8), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 7, 9), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 7, 10), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 7, 11), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 7, 12), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 7, 13), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 7, 14), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 7, 15), 0.8, 'Lekki Phase I'),
+  // Method to fetch real-time traffic data for a given location
+  Future<List<TrafficData>> fetchTrafficData(String location) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$apiUrl?location=$location&key=$apiKey'),
+      );
 
-    TrafficData(DateTime(2023, 7, 1), 1, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 7, 2), 1, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 7, 3), 1, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 7, 4), 0.8, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 7, 5), 0.3, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 7, 6), 0.4, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 7, 7), 0.5, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 7, 8), 0.6, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 7, 9), 0.7, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 7, 10), 0.8, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 7, 11), 0.5, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 7, 12), 0.6, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 7, 13), 0.5, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 7, 14), 0.7, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 7, 15), 0.8, 'Iyana Ipaja'),
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        return _parseTrafficData(jsonData, location);
+      } else {
+        print('Failed to fetch traffic data: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+      return [];
+    }
+  }
 
-// Data for The month of August
+  // Private method to parse JSON data into TrafficData objects
+  List<TrafficData> _parseTrafficData(Map<String, dynamic> jsonData, String location) {
+    List<TrafficData> trafficDataList = [];
 
-    TrafficData(DateTime(2023, 8, 1), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 8, 2), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 8, 3), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 8, 4), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 8, 5), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 8, 6), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 8, 7), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 8, 8), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 8, 9), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 8, 10), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 8, 11), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 8, 12), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 8, 13), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 8, 14), 0.2, "Victoria Island"),
-    TrafficData(DateTime(2023, 8, 15), 0.2, "Victoria Island"),
+    for (var dataPoint in jsonData['trafficPoints']) {
+      DateTime timestamp = DateTime.parse(dataPoint['timestamp']);
+      double trafficLevel = dataPoint['trafficLevel']; // Assume it's in the response
+      trafficDataList.add(TrafficData(timestamp, trafficLevel, location));
+    }
 
-    TrafficData(DateTime(2023, 8, 1), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 8, 2), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 8, 3), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 8, 4), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 8, 5), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 8, 6), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 8, 7), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 8, 8), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 8, 9), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 8, 10), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 8, 11), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 8, 12), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 8, 13), 0.6, 'Ikeja'),
-    TrafficData(DateTime(2023, 8, 14), 0.7, 'Ikeja'),
-    TrafficData(DateTime(2023, 8, 15), 0.7, 'Ikeja'),
-
-    TrafficData(DateTime(2023, 8, 1), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 8, 2), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 8, 3), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 8, 4), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 8, 5), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 8, 6), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 8, 7), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 8, 8), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 8, 9), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 8, 10), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 8, 11), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 8, 12), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 8, 13), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 8, 14), 0.8, 'Lekki Phase I'),
-    TrafficData(DateTime(2023, 8, 15), 0.8, 'Lekki Phase I'),
-
-    TrafficData(DateTime(2023, 8, 1), 1, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 8, 2), 1, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 8, 3), 1, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 8, 4), 0.8, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 8, 5), 0.3, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 8, 6), 0.4, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 8, 7), 0.5, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 8, 8), 0.6, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 8, 9), 0.7, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 8, 10), 0.8, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 8, 11), 0.5, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 8, 12), 0.6, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 8, 13), 0.5, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 8, 14), 0.7, 'Iyana Ipaja'),
-    TrafficData(DateTime(2023, 8, 15), 0.8, 'Iyana Ipaja'),
-  ];
-
-  print('Enter your route here:');
-
-  String? UserRoute = stdin.readLineSync();
-
-  TrafficData? UserTrafficData = dummyData.firstWhere(
-    (data) => data.location.toLowerCase() == UserRoute?.toLowerCase(),
-  );
-
-  if (UserTrafficData != null) {
-    print(
-        'Traffic level for ${UserTrafficData.location} on ${UserTrafficData.timestamp}: ${UserTrafficData.trafficLevel}');
-  } else {
-    print("Route not found");
+    return trafficDataList;
   }
 }
+
+// Function to categorize traffic level
+String categorizeTraffic(double trafficLevel) {
+  if (trafficLevel < 0.5) {
+    return 'Slow Car Movements';
+  } else if (trafficLevel >= 0.5 && trafficLevel <= 0.7) {
+    return 'Average Speed';
+  } else {
+    return 'Fast Car Movements';
+  }
+}
+
+void main() async {
+  print('Enter your API Key:');
+  String? apiKey = stdin.readLineSync();
+
+  // Replace with a real API URL endpoint
+  String apiUrl = 'https://api.example.com/trafficData';
+
+  TrafficFetcher fetcher = TrafficFetcher(apiKey!, apiUrl);
+
+  print('Enter your route here:');
+  String? userRoute = stdin.readLineSync();
+
+  if (userRoute != null && userRoute.isNotEmpty) {
+    // Fetch traffic data for the user's input route
+    List<TrafficData> trafficDataList = await fetcher.fetchTrafficData(userRoute);
+
+    if (trafficDataList.isNotEmpty) {
+      for (var data in trafficDataList) {
+        print(
+            'Traffic level for ${data.location} on ${data.timestamp}: ${categorizeTraffic(data.trafficLevel)} (${data.trafficLevel})');
+      }
+    } else {
+      print("No traffic data available for the route: $userRoute");
+    }
+  } else {
+    print("Invalid route input");
+  }
+}
+
